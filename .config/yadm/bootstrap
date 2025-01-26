@@ -1,0 +1,11 @@
+#!/bin/bash 
+
+#####################################
+# Tested only with Ubuntu 24.04
+#####################################
+
+bootstrap(){
+  echo "########## Starting bootstrap ##########"
+}
+
+bootstrap
