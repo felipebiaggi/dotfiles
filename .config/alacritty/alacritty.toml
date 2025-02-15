@@ -35,3 +35,8 @@ lines = 30
 [window.padding]
 x = 6
 y = 6
+
+[general]
+import = [
+  "~/.config/alacritty/catppuccin-macchiato.toml"
+]
