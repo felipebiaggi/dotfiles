@@ -64,14 +64,23 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
 -- Atalho para sair do modo terminal pressionando <Esc><Esc>
-vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Sair do modo terminal' })
+vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'exit terminal' })
 
 -- Atalho para comentarios
-vim.keymap.set('n', '<leader>g', 'gcc', { desc = 'toggle comment', remap = true })
-vim.keymap.set('v', '<leader>g', 'gc', { desc = 'toggle comment', remap = true })
+vim.keymap.set('n', '<leader><Tab>', 'gcc', { desc = 'toggle comment', remap = true })
+vim.keymap.set('v', '<leader><Tab>', 'gc', { desc = 'toggle comment', remap = true })
 
 -- Atalho para salvar
 vim.keymap.set('n', '<C-s>', '<cmd>w<CR>', { desc = 'general save file' })
+
+-- Atalho para sair
+vim.keymap.set('n', '<C-x>', '<cmd>q<CR>', { desc = 'close nvim' })
+
+-- Atalho para fechar buffer
+vim.keymap.set('n', '<S-x>', '<cmd>bd<CR>', { desc = 'close buffer' })
+
+-- Atalho para primeira palavra da linha
+vim.keymap.set('n', '<Home>', '^', { desc = 'go to fist word' })
 
 -- Destacar o texto ao copiar (yank)
 -- Teste com `yap` no modo normal
@@ -292,7 +301,11 @@ require('lazy').setup({
       -- OBSERVAÇÃO: `opts = {}` é o mesmo que chamar `require('mason').setup({})`
       {
         'williamboman/mason.nvim',
-        opts = {},
+        opts = {
+          ensure_installed = {
+            '',
+          },
+        },
       },
       'williamboman/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
@@ -401,7 +414,9 @@ require('lazy').setup({
         -- gopls = {},
         -- pyright = {},
         -- rust_analyzer = {},
+        ruff = {
 
+        },
         lua_ls = {
           settings = {
             Lua = {
@@ -417,8 +432,10 @@ require('lazy').setup({
 
       -- Garantir que os servidores e ferramentas acima sejam instalados
       local ensure_installed = vim.tbl_keys(servers or {})
+
+      -- Utilizado para formatar código Lua
       vim.list_extend(ensure_installed, {
-        'stylua', -- Utilizado para formatar código Lua
+        'stylua',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -492,7 +509,8 @@ require('lazy').setup({
       },
     },
   },
-  { -- Autocompletar (AutoCompletion)
+  {
+    -- Autocompletar (AutoCompletion)
     'hrsh7th/nvim-cmp', -- Plugin principal de autocompletar para Neovim
     event = 'InsertEnter', -- Inicia o autocompletar quando entra no modo de inserção
     dependencies = {
@@ -518,6 +536,20 @@ require('lazy').setup({
           -- },
         },
       },
+      {
+        'windwp/nvim-autopairs',
+        opts = {
+          fast_wrap = {},
+          disable_filetype = { 'TelescopePrompt', 'vim' },
+        },
+        config = function(_, opts)
+          require('nvim-autopairs').setup(opts)
+
+          -- setup cmp for autopairs
+          local cmp_autopairs = require 'nvim-autopairs.completion.cmp'
+          require('cmp').event:on('confirm_done', cmp_autopairs.on_confirm_done())
+        end,
+      },
       'saadparwaiz1/cmp_luasnip', -- Integração entre `nvim-cmp` e `LuaSnip`
 
       -- Adiciona outras fontes de autocompletar
@@ -542,10 +574,11 @@ require('lazy').setup({
 
         -- Mapeamentos de teclas para navegar e selecionar sugestões
         mapping = cmp.mapping.preset.insert {
+
           -- Seleciona o próximo item da lista de sugestões
-          ['<C-n>'] = cmp.mapping.select_next_item(),
+          ['<Tab>'] = cmp.mapping.select_next_item(),
           -- Seleciona o item anterior da lista de sugestões
-          ['<C-p>'] = cmp.mapping.select_prev_item(),
+          ['<S-Tab>'] = cmp.mapping.select_prev_item(),
 
           -- Rola a janela de documentação para cima ou para baixo
           ['<C-b>'] = cmp.mapping.scroll_docs(-4),
@@ -553,8 +586,7 @@ require('lazy').setup({
 
           -- Confirma a sugestão selecionada automaticamente
           -- Também ativa a importação automática se suportada pelo LSP
-          ['<C-y>'] = cmp.mapping.confirm { select = true },
-
+          ['<CR>'] = cmp.mapping.confirm { select = true },
           -- Caso prefira atalhos mais tradicionais para completar código,
           -- descomente estas linhas:
           --['<CR>'] = cmp.mapping.confirm { select = true },
@@ -699,6 +731,11 @@ require('lazy').setup({
         'vimdoc',
         'python',
         'cpp',
+        'java',
+        'typescript',
+        'toml',
+        'yaml',
+        'dockerfile',
       },
       -- Instala automaticamente linguagens que ainda não estão instaladas
       auto_install = true,
