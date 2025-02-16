@@ -74,7 +74,7 @@ vim.keymap.set('v', '<leader><Tab>', 'gc', { desc = 'toggle comment', remap = tr
 vim.keymap.set('n', '<C-s>', '<cmd>w<CR>', { desc = 'general save file' })
 
 -- Atalho para sair
-vim.keymap.set('n', '<C-x>', '<cmd>q<CR>', { desc = 'close nvim' })
+vim.keymap.set('n', '<C-q>', '<cmd>q<CR>', { desc = 'close nvim' })
 
 -- Atalho para fechar buffer
 vim.keymap.set('n', '<S-x>', '<cmd>bd<CR>', { desc = 'close buffer' })
@@ -414,9 +414,7 @@ require('lazy').setup({
         -- gopls = {},
         -- pyright = {},
         -- rust_analyzer = {},
-        ruff = {
-
-        },
+        ruff = {},
         lua_ls = {
           settings = {
             Lua = {
