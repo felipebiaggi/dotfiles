@@ -1,3 +1,5 @@
+local opts_keymap = { noremap = true, silent = true }
+
 -- Definir <space> como tecla 'leader'
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
@@ -64,23 +66,56 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
 -- Atalho para sair do modo terminal pressionando <Esc><Esc>
-vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'exit terminal' })
+vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal' })
 
 -- Atalho para comentarios
-vim.keymap.set('n', '<leader><Tab>', 'gcc', { desc = 'toggle comment', remap = true })
-vim.keymap.set('v', '<leader><Tab>', 'gc', { desc = 'toggle comment', remap = true })
+vim.keymap.set('n', '<leader><Tab>', 'gcc', { desc = 'Toggle omments', remap = true })
+vim.keymap.set('v', '<leader><Tab>', 'gc', { desc = 'Toggle omments', remap = true })
 
 -- Atalho para salvar
-vim.keymap.set('n', '<C-s>', '<cmd>w<CR>', { desc = 'general save file' })
+vim.keymap.set('n', '<C-s>', '<cmd>w<CR>', { desc = 'Save file' })
 
 -- Atalho para sair
-vim.keymap.set('n', '<C-q>', '<cmd>q<CR>', { desc = 'close nvim' })
+vim.keymap.set('n', '<C-q>', '<cmd>q<CR>', { desc = 'Quit file' })
 
 -- Atalho para fechar buffer
-vim.keymap.set('n', '<S-x>', '<cmd>bd<CR>', { desc = 'close buffer' })
+vim.keymap.set('n', '<leader>x', '<cmd>bd<CR>', { desc = 'Close buffer' })
+
+-- Atalho para criar buffer
+vim.keymap.set('n', '<leader>b', '<cmd>enew<CR>', { desc = 'Create buffer' })
+
+-- Salta entre buffers
+vim.keymap.set('n', '<Tab>', ':bnext<CR>', { desc = 'Next Buffer' })
+vim.keymap.set('n', '<S-Tab>', ':bprevious<CR>', { desc = 'Previous Buffer' })
 
 -- Atalho para primeira palavra da linha
 vim.keymap.set('n', '<Home>', '^', { desc = 'go to fist word' })
+
+-- Muda behavior do x no modo normal
+vim.keymap.set('n', 'x', '"_x', opts_keymap)
+
+-- Scroll vertical centralizado
+vim.keymap.set('n', '<C-d>', '<C-d>zz', opts_keymap)
+vim.keymap.set('n', 'C-u>', '<C-d>zz', opts_keymap)
+
+vim.keymap.set('n', 'n', 'nzzzv', opts_keymap)
+vim.keymap.set('n', 'N', 'Nzzzv', opts_keymap)
+
+-- Identação
+vim.keymap.set('v', '<', '<gv', { desc = 'Return indent' })
+vim.keymap.set('v', '>', '>gv', { desc = 'Advance indent' })
+
+-- Navegar
+vim.keymap.set('n', '<C-k>', ':wincmd k<CR>', opts_keymap)
+vim.keymap.set('n', '<C-j>', ':wincmd j<CR>', opts_keymap)
+vim.keymap.set('n', '<C-h>', ':wincmd h<CR>', opts_keymap)
+vim.keymap.set('n', '<C-l>', ':wincmd l<CR>', opts_keymap)
+
+-- Resize
+vim.keymap.set('n', '<C-Up>', ':resize -2<CR>', opts_keymap)
+vim.keymap.set('n', '<C-Down>', ':resize +2<CR>', opts_keymap)
+vim.keymap.set('n', '<C-Left>', ':vertical resize -2<CR>', opts_keymap)
+vim.keymap.set('n', '<C-Right>', ':vertical resize +2<CR>', opts_keymap)
 
 -- Destacar o texto ao copiar (yank)
 -- Teste com `yap` no modo normal
@@ -536,12 +571,12 @@ require('lazy').setup({
       },
       {
         'windwp/nvim-autopairs',
-        opts = {
+        opts_local = {
           fast_wrap = {},
           disable_filetype = { 'TelescopePrompt', 'vim' },
         },
-        config = function(_, opts)
-          require('nvim-autopairs').setup(opts)
+        config = function(_, opts_local)
+          require('nvim-autopairs').setup(opts_local)
 
           -- setup cmp for autopairs
           local cmp_autopairs = require 'nvim-autopairs.completion.cmp'
@@ -840,5 +875,5 @@ require('nvim-tree').setup {
   },
 }
 
-vim.keymap.set('n', '\\', '<cmd>NvimTreeToggle<CR>', { desc = 'nvimtree toggle window' })
-vim.keymap.set('n', '<leader>e', '<cmd>NvimTreeFocus<CR>', { desc = 'nvimtree focus window' })
+vim.keymap.set('n', '\\', '<cmd>NvimTreeToggle<CR>', { desc = 'Nvimtree toggle window' })
+vim.keymap.set('n', '<leader>e', '<cmd>NvimTreeFocus<CR>', { desc = 'Nvimtree focus window' })
