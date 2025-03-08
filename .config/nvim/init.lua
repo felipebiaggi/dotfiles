@@ -92,7 +92,7 @@ vim.keymap.set('n', '<S-Tab>', ':bprevious<CR>', { desc = 'Previous Buffer' })
 vim.keymap.set('n', '<Home>', '^', { desc = 'go to fist word' })
 
 -- Muda behavior do x no modo normal
-vim.keymap.set('n', 'x', '"_x', opts_keymap)
+-- vim.keymap.set('n', 'x', '"_x', opts_keymap)
 
 -- Scroll vertical centralizado
 vim.keymap.set('n', '<C-d>', '<C-d>zz', opts_keymap)
@@ -445,11 +445,22 @@ require('lazy').setup({
 
       -- Lista de servidores LSP a serem ativados
       local servers = {
-        -- clangd = {},
+        clangd = {},
         -- gopls = {},
-        -- pyright = {},
+        pyright = {
+          settings = {
+            pyright = {
+              disableOrganizeImports = true,
+            },
+            python = {
+              analysis = {
+                ignore = { '*' },
+              },
+            },
+          },
+        },
+        ts_ls = {},
         -- rust_analyzer = {},
-        ruff = {},
         lua_ls = {
           settings = {
             Lua = {
@@ -491,56 +502,114 @@ require('lazy').setup({
       }
     end,
   },
+  -- {
+  --   -- Autoformat (Formatação automática)
+  --   'stevearc/conform.nvim', -- Plugin responsável por formatar o código automaticamente
+  --   event = { 'BufWritePre' }, -- Executa a formatação antes de salvar o buffer
+  --   cmd = { 'ConformInfo' }, -- Adiciona o comando `:ConformInfo` para exibir informações sobre os formatadores disponíveis
+  --
+  --   keys = {
+  --     {
+  --       '<leader>f', -- Atalho para formatar manualmente o buffer atual
+  --       function()
+  --         require('conform').format { async = true, lsp_format = 'fallback' }
+  --       end,
+  --       mode = '', -- O modo aqui está vazio, o que significa que será aplicado a todos os modos suportados
+  --       desc = '[F]ormat buffer', -- Descrição para facilitar a busca no `which-key` (se estiver usando)
+  --     },
+  --   },
+  --
+  --   opts = {
+  --     notify_on_error = false, -- Não exibe notificações quando a formatação falha
+  --
+  --     format_on_save = function(bufnr)
+  --       -- Define quais linguagens não devem usar formatação do LSP no salvamento automático
+  --       -- Algumas linguagens, como C e C++, não possuem um padrão de formatação bem definido,
+  --       -- então o LSP não será utilizado para formatá-las automaticamente.
+  --       local disable_filetypes = { c = true, cpp = true }
+  --       local lsp_format_opt
+  --
+  --       -- Se o arquivo atual for C ou C++, desabilita o fallback do LSP para formatação
+  --       if disable_filetypes[vim.bo[bufnr].filetype] then
+  --         lsp_format_opt = 'never' -- Nunca usar o LSP para formatar esses arquivos
+  --       else
+  --         lsp_format_opt = 'fallback' -- Caso contrário, usar o fallback do LSP se um formatador não estiver disponível
+  --       end
+  --
+  --       return {
+  --         timeout_ms = 500, -- Define um tempo limite de 500ms para a formatação
+  --         lsp_format = lsp_format_opt, -- Aplica a configuração do LSP definida acima
+  --       }
+  --     end,
+  --
+  --     formatters_by_ft = {
+  --       -- Mapeia os formatadores para cada tipo de arquivo
+  --       lua = { 'stylua' }, -- Usa `stylua` para formatar arquivos Lua
+  --
+  --       -- Conform pode rodar múltiplos formatadores em sequência
+  --       -- python = { "isort", "black" }, -- Primeiro `isort` e depois `black` para Python
+  --
+  --       -- Pode-se usar `stop_after_first` para rodar apenas o primeiro formatador disponível
+  --       -- javascript = { "prettierd", "prettier", stop_after_first = true }, -- Usa `prettierd` se disponível, senão `prettier`
+  --     },
+  --   },
+  -- },
   {
-    -- Autoformat (Formatação automática)
-    'stevearc/conform.nvim', -- Plugin responsável por formatar o código automaticamente
-    event = { 'BufWritePre' }, -- Executa a formatação antes de salvar o buffer
-    cmd = { 'ConformInfo' }, -- Adiciona o comando `:ConformInfo` para exibir informações sobre os formatadores disponíveis
+    'nvimtools/none-ls.nvim',
+    dependencies = {
+      'nvimtools/none-ls-extras.nvim',
+      'jayp0521/mason-null-ls.nvim', -- ensure dependencies are installed
+    },
+    config = function()
+      local null_ls = require 'null-ls'
+      local formatting = null_ls.builtins.formatting -- to setup formatters
+      local diagnostics = null_ls.builtins.diagnostics -- to setup linters
 
-    keys = {
-      {
-        '<leader>f', -- Atalho para formatar manualmente o buffer atual
-        function()
-          require('conform').format { async = true, lsp_format = 'fallback' }
+      -- list of formatters & linters for mason to install
+      require('mason-null-ls').setup {
+        ensure_installed = {
+          'checkmake',
+          'prettier', -- ts/js formatter
+          'stylua', -- lua formatter
+          -- 'eslint_d', -- ts/js linter
+          'shfmt',
+          'ruff',
+          'clang-format',
+        },
+        -- auto-install configured formatters & linters (with null-ls)
+        automatic_installation = true,
+      }
+
+      local sources = {
+        diagnostics.checkmake,
+        formatting.prettier.with { filetypes = { 'html', 'json', 'yaml', 'markdown', 'javascript', 'typescript' } },
+        formatting.stylua,
+        formatting.shfmt.with { args = { '-i', '4' } },
+        formatting.terraform_fmt,
+        formatting.clang_format.with { filetypes = { 'c', 'cpp', 'objc', 'cuda' }, extra_args = { '--style=file' } },
+        require('none-ls.formatting.ruff').with { extra_args = { '--extend-select', 'I' } },
+        require 'none-ls.formatting.ruff_format',
+      }
+
+      local augroup = vim.api.nvim_create_augroup('LspFormatting', {})
+      null_ls.setup {
+        -- debug = true, -- Enable debug mode. Inspect logs with :NullLsLog.
+        sources = sources,
+        -- you can reuse a shared lspconfig on_attach callback here
+        on_attach = function(client, bufnr)
+          if client.supports_method 'textDocument/formatting' then
+            vim.api.nvim_clear_autocmds { group = augroup, buffer = bufnr }
+            vim.api.nvim_create_autocmd('BufWritePre', {
+              group = augroup,
+              buffer = bufnr,
+              callback = function()
+                vim.lsp.buf.format { async = false }
+              end,
+            })
+          end
         end,
-        mode = '', -- O modo aqui está vazio, o que significa que será aplicado a todos os modos suportados
-        desc = '[F]ormat buffer', -- Descrição para facilitar a busca no `which-key` (se estiver usando)
-      },
-    },
-
-    opts = {
-      notify_on_error = false, -- Não exibe notificações quando a formatação falha
-
-      format_on_save = function(bufnr)
-        -- Define quais linguagens não devem usar formatação do LSP no salvamento automático
-        -- Algumas linguagens, como C e C++, não possuem um padrão de formatação bem definido,
-        -- então o LSP não será utilizado para formatá-las automaticamente.
-        local disable_filetypes = { c = true, cpp = true }
-        local lsp_format_opt
-
-        -- Se o arquivo atual for C ou C++, desabilita o fallback do LSP para formatação
-        if disable_filetypes[vim.bo[bufnr].filetype] then
-          lsp_format_opt = 'never' -- Nunca usar o LSP para formatar esses arquivos
-        else
-          lsp_format_opt = 'fallback' -- Caso contrário, usar o fallback do LSP se um formatador não estiver disponível
-        end
-
-        return {
-          timeout_ms = 500, -- Define um tempo limite de 500ms para a formatação
-          lsp_format = lsp_format_opt, -- Aplica a configuração do LSP definida acima
-        }
-      end,
-      formatters_by_ft = {
-        -- Mapeia os formatadores para cada tipo de arquivo
-        lua = { 'stylua' }, -- Usa `stylua` para formatar arquivos Lua
-
-        -- Conform pode rodar múltiplos formatadores em sequência
-        -- python = { "isort", "black" }, -- Primeiro `isort` e depois `black` para Python
-
-        -- Pode-se usar `stop_after_first` para rodar apenas o primeiro formatador disponível
-        -- javascript = { "prettierd", "prettier", stop_after_first = true }, -- Usa `prettierd` se disponível, senão `prettier`
-      },
-    },
+      }
+    end,
   },
   {
     -- Autocompletar (AutoCompletion)
@@ -697,7 +766,6 @@ require('lazy').setup({
     dependencies = { 'nvim-lua/plenary.nvim' },
     opts = { signs = false },
   },
-
   {
     -- Coleção de vários pequenos plugins/módulos independentes
     'echasnovski/mini.nvim',
@@ -769,11 +837,17 @@ require('lazy').setup({
         'toml',
         'yaml',
         'dockerfile',
+        'javascript',
+        'typescript',
+        'rust',
+        'cmake',
+        'make',
       },
       -- Instala automaticamente linguagens que ainda não estão instaladas
       auto_install = true,
       highlight = {
         enable = true,
+        use_languagetree = true,
         -- Algumas linguagens dependem do sistema de realce por regex do Vim (como Ruby) para regras de indentação.
         -- Se estiver enfrentando problemas estranhos de indentação, adicione a linguagem à lista de
         -- `additional_vim_regex_highlighting` e desative a indentação para essa linguagem.
