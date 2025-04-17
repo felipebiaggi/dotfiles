@@ -69,8 +69,8 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal' })
 
 -- Atalho para comentarios
-vim.keymap.set('n', '<leader><Tab>', 'gcc', { desc = 'Toggle omments', remap = true })
-vim.keymap.set('v', '<leader><Tab>', 'gc', { desc = 'Toggle omments', remap = true })
+vim.keymap.set('n', '<leader><Tab>', 'gcc', { desc = 'Toggle comments', remap = true })
+vim.keymap.set('v', '<leader><Tab>', 'gc', { desc = 'Toggle comments', remap = true })
 
 -- Atalho para salvar
 vim.keymap.set('n', '<C-s>', '<cmd>w<CR>', { desc = 'Save file' })
@@ -447,6 +447,7 @@ require('lazy').setup({
       local servers = {
         clangd = {},
         -- gopls = {},
+        jdtls = {},
         pyright = {
           settings = {
             pyright = {
@@ -480,6 +481,7 @@ require('lazy').setup({
       -- Utilizado para formatar código Lua
       vim.list_extend(ensure_installed, {
         'stylua',
+        'checkstyle',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -575,6 +577,8 @@ require('lazy').setup({
           'shfmt',
           'ruff',
           'clang-format',
+          'checkstyle',
+          'google-java-format'
         },
         -- auto-install configured formatters & linters (with null-ls)
         automatic_installation = true,
@@ -586,6 +590,7 @@ require('lazy').setup({
         formatting.stylua,
         formatting.shfmt.with { args = { '-i', '4' } },
         formatting.terraform_fmt,
+        formatting.google_java_format.with {  filetypes = { 'java' } },
         formatting.clang_format.with { filetypes = { 'c', 'cpp', 'objc', 'cuda' }, extra_args = { '--style=file' } },
         require('none-ls.formatting.ruff').with { extra_args = { '--extend-select', 'I' } },
         require 'none-ls.formatting.ruff_format',
