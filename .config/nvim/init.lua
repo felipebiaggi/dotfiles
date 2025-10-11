@@ -58,11 +58,7 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal' })
 
-<<<<<<< HEAD
--- Atalho para comentarios
-=======
 -- Comentários (precisa de plugin como numToStr/Comment.nvim ou tpope/vim-commentary)
->>>>>>> 326d71c ((feat) update init.lud)
 vim.keymap.set('n', '<leader><Tab>', 'gcc', { desc = 'Toggle comments', remap = true })
 vim.keymap.set('v', '<leader><Tab>', 'gc', { desc = 'Toggle comments', remap = true })
 
@@ -328,7 +324,6 @@ require('lazy').setup({
       local servers = {
         clangd = {},
         -- gopls = {},
-        jdtls = {},
         pyright = {
           settings = {
             pyright = { disableOrganizeImports = true },
@@ -349,16 +344,7 @@ require('lazy').setup({
 
       -- Garantir instalação via mason-tool-installer (LSPs + ferramentas)
       local ensure_installed = vim.tbl_keys(servers or {})
-<<<<<<< HEAD
-
-      -- Utilizado para formatar código Lua
-      vim.list_extend(ensure_installed, {
-        'stylua',
-        'checkstyle',
-      })
-=======
       vim.list_extend(ensure_installed, { 'stylua' }) -- formatter, não LSP
->>>>>>> 326d71c ((feat) update init.lud)
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
       -- mason-lspconfig: só configura os LSPs da whitelist 'servers'
@@ -397,8 +383,6 @@ require('lazy').setup({
           'shfmt',
           'ruff',
           'clang-format',
-          'checkstyle',
-          'google-java-format'
         },
         automatic_installation = true,
       }
@@ -409,7 +393,6 @@ require('lazy').setup({
         formatting.stylua,
         formatting.shfmt.with { args = { '-i', '4' } },
         formatting.terraform_fmt,
-        formatting.google_java_format.with {  filetypes = { 'java' } },
         formatting.clang_format.with { filetypes = { 'c', 'cpp', 'objc', 'cuda' }, extra_args = { '--style=file' } },
         require('none-ls.formatting.ruff').with { extra_args = { '--extend-select', 'I' } },
         require 'none-ls.formatting.ruff_format',
