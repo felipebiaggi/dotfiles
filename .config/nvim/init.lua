@@ -154,13 +154,34 @@ require('lazy').setup({
       icons = {
         mappings = vim.g.have_nerd_font,
         keys = vim.g.have_nerd_font and {} or {
-          Up = '<Up> ', Down = '<Down> ', Left = '<Left> ', Right = '<Right> ',
-          C = '<C-…> ', M = '<M-…> ', D = '<D-…> ', S = '<S-…> ', CR = '<CR> ',
-          Esc = '<Esc> ', ScrollWheelDown = '<ScrollWheelDown> ', ScrollWheelUp = '<ScrollWheelUp> ',
-          NL = '<NL> ', BS = '<BS> ', Space = '<Space> ', Tab = '<Tab> ',
-          F1 = '<F1>', F2 = '<F2>', F3 = '<F3>', F4 = '<F4>', F5 = '<F5>',
-          F6 = '<F6>', F7 = '<F7>', F8 = '<F8>', F9 = '<F9>', F10 = '<F10>',
-          F11 = '<F11>', F12 = '<F12>',
+          Up = '<Up> ',
+          Down = '<Down> ',
+          Left = '<Left> ',
+          Right = '<Right> ',
+          C = '<C-…> ',
+          M = '<M-…> ',
+          D = '<D-…> ',
+          S = '<S-…> ',
+          CR = '<CR> ',
+          Esc = '<Esc> ',
+          ScrollWheelDown = '<ScrollWheelDown> ',
+          ScrollWheelUp = '<ScrollWheelUp> ',
+          NL = '<NL> ',
+          BS = '<BS> ',
+          Space = '<Space> ',
+          Tab = '<Tab> ',
+          F1 = '<F1>',
+          F2 = '<F2>',
+          F3 = '<F3>',
+          F4 = '<F4>',
+          F5 = '<F5>',
+          F6 = '<F6>',
+          F7 = '<F7>',
+          F8 = '<F8>',
+          F9 = '<F9>',
+          F10 = '<F10>',
+          F11 = '<F11>',
+          F12 = '<F12>',
         },
       },
       spec = {
@@ -185,7 +206,9 @@ require('lazy').setup({
       {
         'nvim-telescope/telescope-fzf-native.nvim',
         build = 'make',
-        cond = function() return vim.fn.executable 'make' == 1 end,
+        cond = function()
+          return vim.fn.executable 'make' == 1
+        end,
       },
       'nvim-telescope/telescope-ui-select.nvim',
       { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
@@ -314,11 +337,7 @@ require('lazy').setup({
       end
 
       -- Capabilities (nvim-cmp)
-      local capabilities = vim.tbl_deep_extend(
-        'force',
-        vim.lsp.protocol.make_client_capabilities(),
-        require('cmp_nvim_lsp').default_capabilities()
-      )
+      local capabilities = vim.tbl_deep_extend('force', vim.lsp.protocol.make_client_capabilities(), require('cmp_nvim_lsp').default_capabilities())
 
       -- Lista de servidores LSP
       local servers = {
@@ -352,9 +371,13 @@ require('lazy').setup({
         ensure_installed = vim.tbl_keys(servers),
         handlers = {
           function(server_name)
-            if not servers[server_name] then return end
+            if not servers[server_name] then
+              return
+            end
             local ok, lspconfig = pcall(require, 'lspconfig')
-            if not ok or not lspconfig[server_name] then return end
+            if not ok or not lspconfig[server_name] then
+              return
+            end
             local server = vim.tbl_deep_extend('force', { capabilities = capabilities }, servers[server_name] or {})
             lspconfig[server_name].setup(server)
           end,
@@ -408,10 +431,12 @@ require('lazy').setup({
               group = augroup,
               buffer = bufnr,
               callback = function()
-                vim.lsp.buf.format({
+                vim.lsp.buf.format {
                   async = false,
-                  filter = function(c) return c.name == 'null-ls' end,
-                })
+                  filter = function(c)
+                    return c.name == 'null-ls'
+                  end,
+                }
               end,
             })
           end
@@ -428,7 +453,9 @@ require('lazy').setup({
       {
         'L3MON4D3/LuaSnip',
         build = (function()
-          if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then return end
+          if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then
+            return
+          end
           return 'make install_jsregexp'
         end)(),
       },
@@ -455,7 +482,9 @@ require('lazy').setup({
 
       cmp.setup {
         snippet = {
-          expand = function(args) luasnip.lsp_expand(args.body) end,
+          expand = function(args)
+            luasnip.lsp_expand(args.body)
+          end,
         },
         completion = { completeopt = 'menu,menuone,noinsert' },
         mapping = cmp.mapping.preset.insert {
@@ -466,10 +495,14 @@ require('lazy').setup({
           ['<CR>'] = cmp.mapping.confirm { select = true },
           ['<C-Space>'] = cmp.mapping.complete {},
           ['<C-l>'] = cmp.mapping(function()
-            if luasnip.expand_or_locally_jumpable() then luasnip.expand_or_jump() end
+            if luasnip.expand_or_locally_jumpable() then
+              luasnip.expand_or_jump()
+            end
           end, { 'i', 's' }),
           ['<C-h>'] = cmp.mapping(function()
-            if luasnip.locally_jumpable(-1) then luasnip.jump(-1) end
+            if luasnip.locally_jumpable(-1) then
+              luasnip.jump(-1)
+            end
           end, { 'i', 's' }),
         },
         sources = {
@@ -496,7 +529,9 @@ require('lazy').setup({
       require('mini.surround').setup()
       local statusline = require 'mini.statusline'
       statusline.setup { use_icons = vim.g.have_nerd_font }
-      statusline.section_location = function() return '%2l:%-2v' end
+      statusline.section_location = function()
+        return '%2l:%-2v'
+      end
     end,
   },
 
@@ -506,13 +541,33 @@ require('lazy').setup({
   -- Treesitter
   {
     'nvim-treesitter/nvim-treesitter',
+    branch = 'master',
     build = ':TSUpdate',
     main = 'nvim-treesitter.configs',
     opts = {
       ensure_installed = {
-        'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline',
-        'query', 'vim', 'vimdoc', 'python', 'cpp', 'java', 'typescript', 'toml',
-        'yaml', 'dockerfile', 'javascript', 'rust', 'cmake', 'make',
+        'bash',
+        'c',
+        'diff',
+        'html',
+        'lua',
+        'luadoc',
+        'markdown',
+        'markdown_inline',
+        'query',
+        'vim',
+        'vimdoc',
+        'python',
+        'cpp',
+        'java',
+        'typescript',
+        'toml',
+        'yaml',
+        'dockerfile',
+        'javascript',
+        'rust',
+        'cmake',
+        'make',
       },
       auto_install = true,
       highlight = { enable = true, use_languagetree = true, additional_vim_regex_highlighting = { 'ruby' } },
@@ -525,9 +580,19 @@ require('lazy').setup({
 }, {
   ui = {
     icons = vim.g.have_nerd_font and {} or {
-      cmd = '⌘', config = '🛠', event = '🗓', ft = '', init = '⚙', keys = '🗝',
-      plugin = '🔌', runtime = '💻', require = '☽', source = '🗎 ', start = '🚀',
-      task = '📌', lazy = '💤 ',
+      cmd = '⌘',
+      config = '🛠',
+      event = '🗓',
+      ft = '',
+      init = '⚙',
+      keys = '🗝',
+      plugin = '🔌',
+      runtime = '💻',
+      require = '☽',
+      source = '🗎 ',
+      start = '🚀',
+      task = '📌',
+      lazy = '💤 ',
     },
   },
 })
@@ -569,4 +634,3 @@ require('nvim-tree').setup {
 
 vim.keymap.set('n', '\\', '<cmd>NvimTreeToggle<CR>', { desc = 'Nvimtree toggle window' })
 vim.keymap.set('n', '<leader>e', '<cmd>NvimTreeFocus<CR>', { desc = 'Nvimtree focus window' })
-
