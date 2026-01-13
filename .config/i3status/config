@@ -1,0 +1,36 @@
+general {
+    output_format = "i3bar"
+}
+
+order += "memory"
+order += "disk /"
+order += "ethernet enp6s0"
+order += "wireless wlp5s0"
+order += "tztime local"
+
+disk "/" {
+    format = " %used / %total (%percentage_used)"
+    low_threshold = 10
+    threshold_type = "percentage_avail"
+    format_below_threshold = " %used / %total (%percentage_used)"
+}
+
+memory {
+    format = " %used / %total (%percentage_used)"
+    threshold_degraded = "10%"
+    format_degraded = " %used / %total (%percentage_used)"
+}
+
+ethernet enp6s0 {
+    format_up = "󰈀 %ip"
+    format_down = ""
+}
+
+wireless wlp5s0 {
+    format_up = " %ip"
+    format_down = ""
+}
+
+tztime local {
+    format = "%d-%m-%Y %H:%M:%S"
+}

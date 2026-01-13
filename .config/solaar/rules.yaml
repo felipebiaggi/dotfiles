@@ -1,0 +1,25 @@
+%YAML 1.3
+---
+- Key: [Smart Shift, pressed]
+- KeyPress:
+  - '1'
+  - click
+...
+---
+- Key: [Mouse Gesture Button, pressed]
+- KeyPress:
+  - F4
+  - click
+...
+---
+- Key: [Forward Button, pressed]
+- KeyPress:
+  - '4'
+  - click
+...
+---
+- Key: [Back Button, pressed]
+- KeyPress:
+  - '3'
+  - click
+...
